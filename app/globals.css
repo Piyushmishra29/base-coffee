@@ -243,3 +243,89 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .nav-sheet ul a:active { color: var(--caramel); }
 .nav-sheet-ig { color: var(--caramel); margin-top: 1.5rem; }
 .nav-sheet-addr { color: var(--mute); }
+
+/* ── Footer ────────────────────────────────────────────────────────── */
+/* Opens on --ink so there is no seam where Visit's ink ends, and closes on
+   --ink again so the page fades out rather than stopping. */
+.footer {
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    var(--ink) 0%,
+    var(--ground) 18%,
+    var(--ground) 62%,
+    var(--ink) 100%
+  );
+  /* the tail keeps the colophon clear of the fixed scroll-progress mark */
+  padding-block: clamp(52px, 8vh, 96px) clamp(104px, 11vh, 140px);
+}
+
+.footer-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: clamp(28px, 4vw, 72px);
+  padding-block: clamp(38px, 6vh, 84px) clamp(52px, 9vh, 116px);
+}
+
+.footer-say {
+  margin: 0;
+  max-width: 15ch;
+  color: var(--greige);
+  font-size: clamp(1.6rem, 3.4vw, 3.4rem);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+}
+
+/* Only two links, and only the two the page is worth leaving on. The address
+   and the hours are Visit's job, one section up. */
+.footer-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(10px, 1.4vh, 16px);
+  justify-items: start;
+  text-align: left;
+}
+
+.footer-link {
+  font-size: clamp(1rem, 1.15vw, 1.25rem);
+  color: var(--greige);
+  transition: color 0.3s ease;
+}
+.footer-link:hover { color: var(--caramel); }
+
+/* Scaled by its own viewBox, so it lands on both gutters at any width. */
+.footer-word-wrap { padding-bottom: clamp(38px, 6.5vh, 80px); }
+.footer-word {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--cream);
+}
+
+.footer-colophon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px 24px;
+  padding-top: clamp(18px, 2.6vh, 26px);
+}
+
+.footer-up { color: var(--mute); transition: color 0.3s ease; }
+.footer-up:hover { color: var(--caramel); }
+
+/* On a phone the sign-off and the links cannot share a line without crushing
+   both, so they stack. */
+@media (max-width: 620px) {
+  .footer-body { flex-direction: column; }
+}
+
+/* Wide enough for the sign-off and the links to share a line: send the links
+   to the right gutter so they close the row the rules already draw. */
+@media (min-width: 821px) {
+  .footer-links { justify-items: end; text-align: right; }
+}
