@@ -3,6 +3,7 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { MaskLine, Rise } from './Reveal';
 import useLazyVideo from './useLazyVideo';
+import Poster from './Poster';
 import useReducedMotionSafe from './useReducedMotionSafe';
 import Mark from './Mark';
 import { BRAND, VISIT } from '@/lib/data';
@@ -17,7 +18,8 @@ export default function Visit() {
   return (
     <section id="visit" ref={ref} style={{ position: 'relative', overflow: 'hidden', background: 'var(--ink)' }}>
       <motion.div style={{ position: 'absolute', inset: '-10% 0', y }}>
-        <video ref={videoRef} src={VISIT.video} poster={VISIT.poster} muted loop playsInline preload="none"
+        <Poster src={VISIT.poster} alt="" style={{ opacity: 0.42 }} />
+        <video ref={videoRef} src={VISIT.video} muted loop playsInline preload="none"
                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.42 }} />
       </motion.div>
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(16,12,10,0.85), rgba(16,12,10,0.6) 45%, rgba(16,12,10,0.95))' }} />

@@ -1,6 +1,7 @@
 'use client';
 import { useRef } from 'react';
 import { Rise } from './Reveal';
+import Poster from './Poster';
 import { REELS } from '@/lib/data';
 
 export default function ReelWall() {
@@ -34,7 +35,8 @@ function Tile({ reel, i }) {
       className={reel.ratio === 'wide' ? 'reel-tile reel-wide' : 'reel-tile'}
     >
       <div onMouseEnter={play} onMouseLeave={stop} style={{ position: 'absolute', inset: 0 }}>
-        <video ref={ref} src={reel.src} poster={reel.poster} muted loop playsInline preload="none"
+        <Poster src={reel.poster} alt={reel.line} />
+        <video ref={ref} src={reel.src} muted loop playsInline preload="none"
                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(16,12,10,0.82), transparent 55%)' }} />
         <p className="serif" style={{

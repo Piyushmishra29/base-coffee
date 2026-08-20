@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import useReducedMotionSafe from './useReducedMotionSafe';
 import useLazyVideo from './useLazyVideo';
+import Poster from './Poster';
 import { Rise } from './Reveal';
 import { MENU } from '@/lib/data';
 
@@ -161,10 +162,13 @@ function Card({ item, stacked }) {
         aspectRatio: stacked ? '4 / 5' : undefined,
       }}>
         {item.kind === 'video' ? (
-          <video ref={videoRef} src={item.src} poster={item.poster} muted loop playsInline preload="none"
-                 style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+          <>
+            <Poster src={item.poster} alt={item.name} />
+            <video ref={videoRef} src={item.src} muted loop playsInline preload="none"
+                   style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+          </>
         ) : (
-          <img src={item.src} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+          <Poster src={item.src} alt={item.name} />
         )}
         <span className="eyebrow" style={{
           position: 'absolute', top: 16, left: 16, color: 'var(--cream)',
