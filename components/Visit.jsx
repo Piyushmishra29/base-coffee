@@ -41,8 +41,9 @@ export default function Visit() {
           </Rise>
           <Rise as="div" delay={0.06} style={{ display: 'grid', gap: 6, alignContent: 'start' }}>
             <span className="eyebrow">Hours</span>
-            <a href={BRAND.maps} target="_blank" rel="noreferrer" className="visit-link" style={{ fontSize: 17 }}>
-              Live on Google Maps ↗
+            <span style={{ fontSize: 17 }}>{BRAND.hours}</span>
+            <a href={BRAND.maps} target="_blank" rel="noreferrer" className="visit-link" style={{ fontSize: 14 }}>
+              Confirm on Google Maps ↗
             </a>
           </Rise>
           <Rise as="div" delay={0.12} style={{ display: 'grid', gap: 6, alignContent: 'start' }}>

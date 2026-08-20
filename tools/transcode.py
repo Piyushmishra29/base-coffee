@@ -61,9 +61,19 @@ def probe(path):
 
 
 def encode(src, dst, crf):
-    """Native resolution, no scaling, audio stripped, faststart for streaming."""
+    """
+    Native resolution, no scaling, audio stripped, faststart for streaming.
+
+    A mild unsharp is baked in because the hero is displayed full-bleed: on a
+    4K screen it runs at 3840px from a 720px source, a 5.33x upscale, and the
+    browser's own scaler does nothing to compensate. Measured against the
+    unsharpened frame this visibly firms up edges. It does NOT invent detail —
+    the only real fix for 4K is original footage from the client rather than
+    Instagram's 720p re-compression. Kept low (0.6) to avoid haloing.
+    """
     r = run([
         'ffmpeg', '-y', '-loglevel', 'error', '-i', str(src),
+        '-vf', 'unsharp=5:5:0.6:5:5:0.0',
         '-an',
         '-c:v', 'libx264', '-profile:v', 'high', '-level', '4.1',
         '-preset', 'slow', '-crf', str(crf),

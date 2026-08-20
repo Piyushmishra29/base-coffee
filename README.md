@@ -30,8 +30,13 @@ The logo was rebuilt as SVG from pixel measurements off a 1080px post:
 outer rectangle 50 × 69, stroke 10% of width, centre bar of the same weight
 splitting it exactly in half.
 
-**There are no prices and no opening hours on this site.** Base has not
-published either, so neither was invented — Hours links out to Google Maps.
+**There are no prices on this site.** Base has never published them, so none
+were invented.
+
+Hours *are* shown — "Everyday, 8am – 10pm" is Base's own line from a June 2025
+post — with a Google Maps link beside it as the live source. They are kept out
+of the JSON-LD deliberately: schema hours are machine-authoritative and the
+post is 14 months old.
 
 ## Develop
 

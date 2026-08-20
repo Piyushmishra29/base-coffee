@@ -4,10 +4,14 @@ import { BRAND, MENU } from '@/lib/data';
  * CafeOrCoffeeShop schema. This is what feeds the Google sidebar for a local
  * business — name, address, geo, the menu sections, and sameAs to Instagram.
  *
- * Deliberately absent: `priceRange` and `openingHoursSpecification`. Base has
- * published neither, and a wrong price or a wrong closing time on a result
- * card sends someone to a shut door. Omitted fields are ignored; invented ones
- * are worse than nothing. See issues #1 and #2.
+ * Deliberately absent: `priceRange` and `openingHoursSpecification`.
+ *
+ * Prices have never been published. Hours HAVE been — "Pouring everyday:
+ * 8am - 10pm" (post DLR72xgsH4W, 24 Jun 2025) — and are shown on the page, but
+ * they are 14 months old and schema hours are machine-authoritative: Google
+ * would surface them on the result card over whatever the business has since
+ * set in Maps. Until the café confirms, Maps stays the live source.
+ * See issues #1 and #2.
  */
 export default function StructuredData() {
   const schema = {
