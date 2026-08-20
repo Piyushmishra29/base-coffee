@@ -17,9 +17,32 @@ const instrument = Instrument_Serif({
   display: 'swap',
 });
 
+const SITE = 'https://basecoffee.in';
+const DESCRIPTION =
+  'A neighbourhood coffee shop on Road No. 46, Jubilee Hills, Hyderabad. ' +
+  'Espresso pulled slow, matcha whisked by hand, cold brew steeped over ice.';
+
 export const metadata = {
+  metadataBase: new URL(SITE),
   title: 'Base Coffee — Jubilee Hills, Hyderabad',
-  description: BRAND.tagline,
+  description: DESCRIPTION,
+  keywords: ['Base Coffee', 'Jubilee Hills', 'Hyderabad', 'specialty coffee', 'matcha', 'cold brew'],
+  alternates: { canonical: '/' },
+  openGraph: {
+    type: 'website',
+    url: SITE,
+    siteName: 'Base Coffee',
+    title: 'Base Coffee — Jubilee Hills, Hyderabad',
+    description: DESCRIPTION,
+    locale: 'en_IN',
+    images: [{ url: '/og.jpg', width: 1200, height: 630, alt: BRAND.tagline }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Base Coffee — Jubilee Hills, Hyderabad',
+    description: DESCRIPTION,
+    images: ['/og.jpg'],
+  },
 };
 
 export const viewport = {

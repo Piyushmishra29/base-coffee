@@ -5,7 +5,7 @@ import { REELS } from '@/lib/data';
 
 export default function ReelWall() {
   return (
-    <section id="space" className="shell" style={{ paddingBlock: 'clamp(90px, 16vh, 180px)' }}>
+    <section id="space" className="shell" style={{ paddingBlock: 'clamp(80px, 13vh, 150px)' }}>
       <div className="section-head">
         <h2 className="h2">The space</h2>
         <span className="eyebrow">Hover to play</span>
@@ -28,6 +28,7 @@ function Tile({ reel, i }) {
       delay={(i % 4) * 0.05}
       style={{
         position: 'relative', overflow: 'hidden', background: 'var(--ground-2)',
+        border: '1px solid var(--edge-soft)',
         aspectRatio: reel.ratio === 'wide' ? '16 / 10' : '4 / 5',
       }}
       className={reel.ratio === 'wide' ? 'reel-tile reel-wide' : 'reel-tile'}
