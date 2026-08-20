@@ -20,27 +20,41 @@ export default function Hero({ onIntroDone }) {
   // Measure the viewport — the aperture is drawn in real pixels so the
   // stroke weight never distorts the way a scaled element's would.
   useEffect(() => {
-    const measure = () => setVp({ w: window.innerWidth, h: window.innerHeight });
+    const measure = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      // Keep the object identity stable when the size hasn't actually changed.
+      // A fresh {w,h} on every resize event re-ran the intro effect below, and
+      // iOS fires resize on every URL-bar collapse — the intro could be
+      // restarted indefinitely and onIntroDone would never fire, leaving the
+      // nav invisible but still focusable.
+      setVp((prev) => (prev && prev.w === w && prev.h === h ? prev : { w, h }));
+    };
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
   }, []);
 
   // The one beat: mark holds, frame expands, bar splits, footage pours out.
+  // Guarded so it runs once — a resize must never restart or re-time it.
+  const started = useRef(false);
   useEffect(() => {
-    if (!vp) return;
-    if (reduced) {
-      p.set(1);
-      onIntroDone?.();
-      return;
-    }
+    if (!vp || started.current) return;
+    started.current = true;
     const controls = animate(p, 1, {
       duration: 2.6,
       ease: 'linear',
       onComplete: () => onIntroDone?.(),
     });
     return () => controls.stop();
-  }, [vp, reduced, p, onIntroDone]);
+  }, [vp, p, onIntroDone]);
+
+  // useReducedMotionSafe resolves after mount, so this may land mid-intro.
+  useEffect(() => {
+    if (!reduced) return;
+    p.set(1);
+    onIntroDone?.();
+  }, [reduced, p, onIntroDone]);
 
   const w = vp?.w ?? 0;
   const h = vp?.h ?? 0;
@@ -59,36 +73,37 @@ export default function Hero({ onIntroDone }) {
   };
   const irisGap = (v) => easeIris(Math.min(1, Math.max(0, (v - 0.42) / 0.58))) * (h * 1.08);
 
+  // Solve the geometry once per frame; everything else reads off it.
+  const g = useTransform(p, geo);
+  const gap = useTransform(p, irisGap);
+
   // Frame outline
-  const frameLeft   = useTransform(p, (v) => geo(v).X);
-  const frameTop    = useTransform(p, (v) => geo(v).Y);
-  const frameW      = useTransform(p, (v) => geo(v).W);
-  const frameH      = useTransform(p, (v) => geo(v).H);
-  const frameBorder = useTransform(p, (v) => geo(v).SW);
+  const frameLeft   = useTransform(g, (v) => v.X);
+  const frameTop    = useTransform(g, (v) => v.Y);
+  const frameW      = useTransform(g, (v) => v.W);
+  const frameH      = useTransform(g, (v) => v.H);
+  const frameBorder = useTransform(g, (v) => v.SW);
   const frameOpacity = useTransform(p, [0, 0.86, 1], [1, 1, 0]);
 
   // Footage is clipped twice — once to the frame's interior, once to the
   // widening band between the two halves of the bar. The intersection is the aperture.
-  const frameClip = useTransform(p, (v) => {
-    const { X, Y, W, H, SW } = geo(v);
-    return `inset(${Y + SW}px ${w - (X + W - SW)}px ${h - (Y + H - SW)}px ${X + SW}px)`;
-  });
-  const irisClip = useTransform(p, (v) => {
-    const g = irisGap(v);
-    return `inset(${cy - g / 2}px 0px ${h - (cy + g / 2)}px 0px)`;
-  });
+  const frameClip = useTransform(g, ({ X, Y, W, H, SW }) =>
+    `inset(${Y + SW}px ${w - (X + W - SW)}px ${h - (Y + H - SW)}px ${X + SW}px)`);
+  const irisClip = useTransform(gap, (v) =>
+    `inset(${cy - v / 2}px 0px ${h - (cy + v / 2)}px 0px)`);
 
   // The bar, torn in half
-  const barLeft   = useTransform(p, (v) => geo(v).X + geo(v).SW);
-  const barWidth  = useTransform(p, (v) => { const g = geo(v); return Math.max(0, g.W - g.SW * 2); });
-  const barHeight = useTransform(p, (v) => geo(v).SW / 2);
-  const barTopY   = useTransform(p, (v) => cy - irisGap(v) / 2 - geo(v).SW / 2);
-  const barBotY   = useTransform(p, (v) => cy + irisGap(v) / 2);
+  const barLeft   = useTransform(g, (v) => v.X + v.SW);
+  const barWidth  = useTransform(g, (v) => Math.max(0, v.W - v.SW * 2));
+  const barHeight = useTransform(g, (v) => v.SW / 2);
+  const barTopY   = useTransform([g, gap], ([v, gp]) => cy - gp / 2 - v.SW / 2);
+  const barBotY   = useTransform(gap, (v) => cy + v / 2);
   const barOpacity = useTransform(p, [0, 0.9, 1], [1, 1, 0]);
 
   // The lockup's wordmark, present only while the mark is still a logo
   const lockupOpacity = useTransform(p, [0, 0.16, 0.3], [1, 1, 0]);
   const lockupTop = useTransform(p, () => cy + markH / 2 + 18);
+
 
   // Headline arrives once the aperture is open
   const copyOpacity = useTransform(p, [0.74, 0.94], [0, 1]);
@@ -107,7 +122,7 @@ export default function Hero({ onIntroDone }) {
           <motion.video
             src={HERO.video}
             poster={HERO.poster}
-            autoPlay muted loop playsInline preload="auto"
+            autoPlay={!reduced} muted loop={!reduced} playsInline preload="auto"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', scale: videoScale }}
           />
           <motion.div style={{ position: 'absolute', inset: 0, background: 'var(--ink)', opacity: veil }} />
@@ -139,11 +154,24 @@ export default function Hero({ onIntroDone }) {
         </>
       )}
 
-      {/* Static first paint: identical to t=0, so there is no hydration flash */}
+      {/* Static first paint. The mark is sized and centred in CSS to land
+          exactly where the measured t=0 frame does — centring a mark+wordmark
+          stack instead put the mark 17px high and 20% small, so it visibly
+          popped on hydration. */}
       {!vp && (
-        <div style={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center' }}>
-          <div style={{ display: 'grid', justifyItems: 'center', gap: 18 }}>
-            <Mark size={120} />
+        <div style={{ position: 'absolute', inset: 0 }} aria-hidden>
+          <Mark
+            size={120}
+            style={{
+              position: 'absolute', left: '50%', top: '50%',
+              transform: 'translate(-50%, -50%)',
+              height: 'clamp(96px, 16svh, 148px)', width: 'auto',
+            }}
+          />
+          <div style={{
+            position: 'absolute', left: 0, right: 0,
+            top: 'calc(50% + clamp(96px, 16svh, 148px) / 2 + 18px)', textAlign: 'center',
+          }}>
             <span className="wordmark" style={{ color: 'var(--cream)' }}>Base&nbsp;&nbsp;Coffee</span>
           </div>
         </div>
@@ -152,6 +180,7 @@ export default function Hero({ onIntroDone }) {
       {/* Wordmark half of the lockup */}
       {vp && (
         <motion.div
+          aria-hidden
           style={{ position: 'absolute', left: 0, right: 0, top: lockupTop, textAlign: 'center', opacity: lockupOpacity, pointerEvents: 'none' }}
         >
           <span className="wordmark" style={{ color: 'var(--cream)' }}>Base&nbsp;&nbsp;Coffee</span>

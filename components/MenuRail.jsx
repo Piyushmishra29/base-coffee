@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import useReducedMotionSafe from './useReducedMotionSafe';
+import useLazyVideo from './useLazyVideo';
 import { MENU } from '@/lib/data';
 
 /** Beat two: the menu is pinned and panned sideways. */
@@ -79,6 +80,9 @@ function Head() {
 }
 
 function Card({ item, static: isStatic }) {
+  const reduced = useReducedMotionSafe();
+  const videoRef = useLazyVideo(!reduced && item.kind === 'video');
+
   return (
     <article style={{
       flex: isStatic ? undefined : '0 0 clamp(272px, 62vw, 640px)',
@@ -87,7 +91,7 @@ function Card({ item, static: isStatic }) {
     }}>
       <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--ground-2)', borderRadius: 2, minHeight: isStatic ? 320 : 0 }}>
         {item.kind === 'video' ? (
-          <video src={item.src} poster={item.poster} autoPlay muted loop playsInline preload="metadata"
+          <video ref={videoRef} src={item.src} poster={item.poster} muted loop playsInline preload="none"
                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
         ) : (
           <img src={item.src} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />

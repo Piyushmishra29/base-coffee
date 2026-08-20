@@ -1,5 +1,6 @@
 'use client';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { MotionConfig } from 'motion/react';
 import SmoothScroll from '@/components/SmoothScroll';
 import Nav from '@/components/Nav';
 import Hero from '@/components/Hero';
@@ -16,8 +17,16 @@ export default function Page() {
   const [introDone, setIntroDone] = useState(false);
   const onIntroDone = useCallback(() => setIntroDone(true), []);
 
+  // The nav and scroll chrome are gated on the intro finishing. If that signal
+  // is ever missed the site would have no navigation at all, so release them
+  // on a timer regardless.
+  useEffect(() => {
+    const t = setTimeout(() => setIntroDone(true), 4500);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
-    <>
+    <MotionConfig reducedMotion="user">
       <SmoothScroll />
       <Nav ready={introDone} />
       <ScrollMark ready={introDone} />
@@ -32,6 +41,6 @@ export default function Page() {
       </main>
       <Footer />
       <div className="grain" aria-hidden />
-    </>
+    </MotionConfig>
   );
 }
