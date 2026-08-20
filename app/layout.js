@@ -1,6 +1,7 @@
 import { Archivo, Instrument_Serif } from 'next/font/google';
 import './globals.css';
 import { BRAND } from '@/lib/data';
+import StructuredData from '@/components/StructuredData';
 
 const archivo = Archivo({
   subsets: ['latin'],
@@ -28,6 +29,11 @@ export const metadata = {
   description: DESCRIPTION,
   keywords: ['Base Coffee', 'Jubilee Hills', 'Hyderabad', 'specialty coffee', 'matcha', 'cold brew'],
   alternates: { canonical: '/' },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
   openGraph: {
     type: 'website',
     url: SITE,
@@ -52,6 +58,12 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${archivo.variable} ${instrument.variable}`}>
+      <head>
+        <StructuredData />
+        {/* The hero clip is the LCP element and the only one that loads
+            eagerly, so tell the browser about it before the parser reaches it. */}
+        <link rel="preload" as="image" href="/posters/3943234346642411994.jpg" fetchPriority="high" />
+      </head>
       <body>
         <noscript>
           <style>{`
