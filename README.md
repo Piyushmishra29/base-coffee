@@ -46,7 +46,7 @@ Base Coffee's public Instagram. It carries their real name, logo and photographs
 | **Styling** | Plain CSS with custom properties — no Tailwind |
 | **Type** | Archivo + Instrument Serif, self-hosted via `next/font` |
 | **Host** | Static export behind Caddy + nginx on a Hostinger VPS |
-| **Weight** | 44 MB built · **1.98 MB on first paint** |
+| **Weight** | 43 MB built · **1.98 MB on first paint** |
 
 ---
 
