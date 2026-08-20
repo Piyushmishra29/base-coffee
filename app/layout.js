@@ -62,7 +62,7 @@ export default function RootLayout({ children }) {
         <StructuredData />
         {/* The hero clip is the LCP element and the only one that loads
             eagerly, so tell the browser about it before the parser reaches it. */}
-        <link rel="preload" as="image" href="/posters/3943234346642411994.jpg" fetchPriority="high" />
+        <link rel="preload" as="image" href="/posters/3943234346642411994.avif" type="image/avif" fetchPriority="high" />
       </head>
       <body>
         <noscript>

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useTransform, useScroll, animate, cubicBezier } from 'motion/react';
 import Mark from './Mark';
+import Poster from './Poster';
 import useReducedMotionSafe from './useReducedMotionSafe';
 import { HERO, BRAND } from '@/lib/data';
 
@@ -69,7 +70,9 @@ export default function Hero({ onIntroDone }) {
     const W = lerp(markW, w, f);
     const H = lerp(markH, h, f);
     const SW = lerp(sw0, 1.1, f);
-    return { f, W, H, SW, X: (w - W) / 2, Y: (h - H) / 2 };
+    // An SVG stroke straddles the path, so pull the rect in by half a stroke
+    // to leave the outer edge exactly where the div's border-box had it.
+    return { f, W: W - SW, H: H - SW, SW, X: (w - W) / 2 + SW / 2, Y: (h - H) / 2 + SW / 2 };
   };
   const irisGap = (v) => easeIris(Math.min(1, Math.max(0, (v - 0.42) / 0.58))) * (h * 1.08);
 
@@ -87,14 +90,17 @@ export default function Hero({ onIntroDone }) {
 
   // Footage is clipped twice — once to the frame's interior, once to the
   // widening band between the two halves of the bar. The intersection is the aperture.
-  const frameClip = useTransform(g, ({ X, Y, W, H, SW }) =>
-    `inset(${Y + SW}px ${w - (X + W - SW)}px ${h - (Y + H - SW)}px ${X + SW}px)`);
+  const frameClip = useTransform(g, ({ X, Y, W, H, SW }) => {
+    const top = Y + SW / 2, left = X + SW / 2;
+    const right = X + W - SW / 2, bottom = Y + H - SW / 2;
+    return `inset(${top}px ${w - right}px ${h - bottom}px ${left}px)`;
+  });
   const irisClip = useTransform(gap, (v) =>
     `inset(${cy - v / 2}px 0px ${h - (cy + v / 2)}px 0px)`);
 
   // The bar, torn in half
-  const barLeft   = useTransform(g, (v) => v.X + v.SW);
-  const barWidth  = useTransform(g, (v) => Math.max(0, v.W - v.SW * 2));
+  const barLeft   = useTransform(g, (v) => v.X + v.SW / 2);
+  const barWidth  = useTransform(g, (v) => Math.max(0, v.W - v.SW));
   const barHeight = useTransform(g, (v) => v.SW / 2);
   const barTopY   = useTransform([g, gap], ([v, gp]) => cy - gp / 2 - v.SW / 2);
   const barBotY   = useTransform(gap, (v) => cy + v / 2);
@@ -119,9 +125,9 @@ export default function Hero({ onIntroDone }) {
       {/* Footage, double-clipped into the aperture */}
       <motion.div style={{ position: 'absolute', inset: 0, clipPath: vp ? frameClip : 'inset(50% 50% 50% 50%)' }}>
         <motion.div style={{ position: 'absolute', inset: 0, clipPath: vp ? irisClip : 'inset(50% 0 50% 0)' }}>
+          <Poster src={HERO.poster} alt="" eager />
           <motion.video
             src={HERO.video}
-            poster={HERO.poster}
             autoPlay={!reduced} muted loop={!reduced} playsInline preload="auto"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', scale: videoScale }}
           />
@@ -133,25 +139,34 @@ export default function Hero({ onIntroDone }) {
         </motion.div>
       </motion.div>
 
-      {/* The mark's outline, growing into the page frame */}
+      {/* The mark's outline growing into the page frame, and the bar splitting
+          in half. Drawn as SVG rather than positioned divs: animating
+          left/top/width/height reflows a viewport-sized box every frame AND
+          the browser scores it as layout shift — it was the entire CLS of the
+          page, 0.446. SVG geometry never touches document layout, and unlike a
+          transform-scaled div the stroke keeps its exact weight throughout. */}
       {vp && (
-        <motion.div
+        <svg
           aria-hidden
-          style={{
-            position: 'absolute',
-            left: frameLeft, top: frameTop, width: frameW, height: frameH,
-            borderStyle: 'solid', borderColor: 'var(--cream)', borderWidth: frameBorder,
-            opacity: frameOpacity, pointerEvents: 'none', willChange: 'width,height,left,top',
-          }}
-        />
-      )}
-
-      {/* The bar, split into two halves that leave through the top and bottom */}
-      {vp && (
-        <>
-          <motion.div aria-hidden style={{ position: 'absolute', left: barLeft, top: barTopY, width: barWidth, height: barHeight, background: 'var(--cream)', opacity: barOpacity, pointerEvents: 'none' }} />
-          <motion.div aria-hidden style={{ position: 'absolute', left: barLeft, top: barBotY, width: barWidth, height: barHeight, background: 'var(--cream)', opacity: barOpacity, pointerEvents: 'none' }} />
-        </>
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${w} ${h}`}
+          style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+        >
+          <motion.rect
+            x={frameLeft} y={frameTop} width={frameW} height={frameH}
+            fill="none" stroke="var(--cream)"
+            style={{ strokeWidth: frameBorder, opacity: frameOpacity }}
+          />
+          <motion.rect
+            x={barLeft} y={barTopY} width={barWidth} height={barHeight}
+            fill="var(--cream)" style={{ opacity: barOpacity }}
+          />
+          <motion.rect
+            x={barLeft} y={barBotY} width={barWidth} height={barHeight}
+            fill="var(--cream)" style={{ opacity: barOpacity }}
+          />
+        </svg>
       )}
 
       {/* Static first paint. The mark is sized and centred in CSS to land

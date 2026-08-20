@@ -1,0 +1,9 @@
+# Next ships legacy transpilation and polyfills for browsers this site will
+# never see — Lighthouse flagged 12KB of it. Audience is current Safari on
+# iPhone and current desktop browsers.
+last 2 Chrome versions
+last 2 Firefox versions
+last 2 Safari versions
+last 2 Edge versions
+last 2 iOS versions
+not dead
