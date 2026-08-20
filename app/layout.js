@@ -52,7 +52,15 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${archivo.variable} ${instrument.variable}`}>
-      <body>{children}</body>
+      <body>
+        <noscript>
+          <style>{`
+            main *, header * { opacity: 1 !important; transform: none !important; }
+            .grain { display: none; }
+          `}</style>
+        </noscript>
+        {children}
+      </body>
     </html>
   );
 }

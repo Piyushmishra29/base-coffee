@@ -1,8 +1,13 @@
 'use client';
 import { MaskLine, Rise } from './Reveal';
+import useLazyVideo from './useLazyVideo';
+import useReducedMotionSafe from './useReducedMotionSafe';
 import { BUDDY } from '@/lib/data';
 
 export default function BaseBuddy() {
+  const reduced = useReducedMotionSafe();
+  const videoRef = useLazyVideo(!reduced);
+
   return (
     <section id="buddy" style={{ background: 'var(--ground-2)', paddingBlock: 'clamp(90px, 16vh, 190px)' }}>
       <div className="shell" style={{
@@ -24,7 +29,7 @@ export default function BaseBuddy() {
         </div>
 
         <Rise delay={0.06} style={{ position: 'relative', aspectRatio: '16 / 10', overflow: 'hidden', background: 'var(--ink)' }}>
-          <video src={BUDDY.video} poster={BUDDY.poster} autoPlay muted loop playsInline preload="metadata"
+          <video ref={videoRef} src={BUDDY.video} poster={BUDDY.poster} muted loop playsInline preload="none"
                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         </Rise>
       </div>

@@ -2,10 +2,14 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { MaskLine, Rise } from './Reveal';
+import useLazyVideo from './useLazyVideo';
+import useReducedMotionSafe from './useReducedMotionSafe';
 import Mark from './Mark';
 import { BRAND, VISIT } from '@/lib/data';
 
 export default function Visit() {
+  const reduced = useReducedMotionSafe();
+  const videoRef = useLazyVideo(!reduced);
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const y = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
@@ -13,7 +17,7 @@ export default function Visit() {
   return (
     <section id="visit" ref={ref} style={{ position: 'relative', overflow: 'hidden', background: 'var(--ink)' }}>
       <motion.div style={{ position: 'absolute', inset: '-10% 0', y }}>
-        <video src={VISIT.video} poster={VISIT.poster} autoPlay muted loop playsInline preload="none"
+        <video ref={videoRef} src={VISIT.video} poster={VISIT.poster} muted loop playsInline preload="none"
                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.42 }} />
       </motion.div>
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(16,12,10,0.85), rgba(16,12,10,0.6) 45%, rgba(16,12,10,0.95))' }} />
